@@ -55,7 +55,7 @@ test("перебор email через continue и break", async () => {
       extra++;
       break;
     } else {
-      console.log("email найден");
+      console.log(`email найден: ${emails}`);
       checksPassed++;
     }
   }
