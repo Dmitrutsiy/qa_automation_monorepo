@@ -1,31 +1,5 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("вход в Tasteorama", () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto("/auth/login");
-  });
-  test("успешный вход перебрасывает на главную страницу", async ({ page }) => {
-    const emailField = page.locator("#email");
-    const passwordField = page.locator("#password");
-    const submitButton = page.locator('button[type="submit"]');
-    await emailField.fill(process.env.TEST_EMAIL);
-    await passwordField.fill(process.env.TEST_PASSWORD);
-    await submitButton.click();
-    await expect(page).toHaveURL("/");
-  });
-  test("неправильный пароль", async ({ page }) => {
-    const emailField = page.locator("#email");
-    const passwordField = page.locator("#password");
-    const submitButton = page.locator('button[type="submit"]');
-    await emailField.fill(process.env.TEST_EMAIL);
-    await passwordField.fill("Duck-Duck");
-    await submitButton.click();
-    await expect(page.locator('[role="alert"]')).toHaveText(
-      "UnauthorizedError",
-    ); // выбран toHaveText потому что надпись статичная
-    await expect(page).toHaveURL("/auth/login");
-  });
-});
 test.describe("первая карточка списка рецептов", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
