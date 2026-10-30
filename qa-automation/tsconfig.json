@@ -1,0 +1,7 @@
+{"compilerOptions": {
+"target": "ES2022",
+"module": "esnext",
+"types": ["node"],
+"strict": true,
+"skipLibCheck": true
+}}
