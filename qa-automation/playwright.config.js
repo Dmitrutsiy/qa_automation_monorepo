@@ -5,6 +5,8 @@ import { defineConfig, devices } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
+// import 'dotenv/config'; выбран импорт ниже, он является надёжнее и ищет файл в определенной директории
+// в результате чего загрузчик не будет зависать от директории
 import dotenv from 'dotenv';
 import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
@@ -13,6 +15,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
+  globalSetup:
+  require.resolve('./global-setup'),
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
