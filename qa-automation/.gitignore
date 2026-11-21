@@ -5,6 +5,6 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-/playwright/.auth/
 /playwright/.local-browsers/
 .env
+/playwright/.auth/

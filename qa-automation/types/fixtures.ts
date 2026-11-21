@@ -1,6 +1,6 @@
 import { RecipeCategory } from "./enums";
 export interface RecipeFixture {
-  readonly title: string;
+  // readonly title: string;
   readonly description: string;
   readonly time: string;
   readonly calories: string;
