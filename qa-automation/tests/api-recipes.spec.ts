@@ -75,5 +75,5 @@ test("POST /recipes without token fails", async ({ request }) => {
   const response = await request.post("recipes", {
     data: newRecipe,
   });
-  expect(response.status()).toBe(200); //заменил на 200 для контролируемой проверки
+  expect(response.status()).toBe(401);
 });
