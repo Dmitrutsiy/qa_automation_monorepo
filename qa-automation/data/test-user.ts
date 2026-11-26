@@ -5,5 +5,5 @@ export const DEFAULT_USER: TestUser = {
   password: process.env.TEST_PASSWORD ?? "",
 };
 export const WRONG_PASSWORD: WrongPassword = {
-  wrongPassword: process.env.TEST_wrong_PASSWORD ?? "",
+  wrongPassword: process.env.TEST_WRONG_PASSWORD ?? "",
 };

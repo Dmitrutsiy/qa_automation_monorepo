@@ -1,0 +1,109 @@
+name: Playwright tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start application
+        shell: bash
+        env:
+          MYSQL_USER: ${{ secrets.DB_USER }}
+          MYSQL_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DB: headliner_db
+        run: |
+          : "${MYSQL_USER:?MYSQL_USER is missing}"
+          : "${MYSQL_PASSWORD:?MYSQL_PASSWORD is missing}"
+          docker compose up -d --build
+
+      - name: Wait for application to be ready
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS --connect-timeout 2 --max-time 3 \
+                 http://localhost:4040/api-docs > /dev/null \
+              && curl -fsS --connect-timeout 2 --max-time 3 \
+                 http://localhost:5173 > /dev/null; then
+              echo "Application HTTP endpoints are available"
+              exit 0
+            fi
+            echo "Waiting for application, attempt ${attempt}/30"
+            sleep 2
+          done
+          echo "Application did not become ready"
+          exit 1
+
+      - name: Build test image
+        run: docker build -t qa-automation-tests ./qa-automation
+
+      - name: Run autotests in Docker
+        shell: bash
+        env:
+          CI: "true"
+          BASE_URL: http://localhost:5173
+          DB_HOST: 127.0.0.1
+          DB_PORT: "3307"
+          DB_USER: ${{secrets.DB_USER}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+          DB_NAME: headliner_db
+          TEST_EMAIL: ${{secrets.TEST_EMAIL}}
+          TEST_PASSWORD: ${{secrets.TEST_PASSWORD}}
+          TEST_WRONG_PASSWORD: ${{secrets.TEST_WRONG_PASSWORD}}
+        run: |
+          : "${DB_USER:?DB_USER is missing}"
+          : "${DB_PASSWORD:?DB_PASSWORD is missing}"
+          : "${TEST_EMAIL:?TEST_EMAIL is missing}"
+          : "${TEST_PASSWORD:?TEST_PASSWORD is missing}"
+          : "${TEST_WRONG_PASSWORD:?TEST_WRONG_PASSWORD is missing}"
+          QA_DIR="${GITHUB_WORKSPACE}/qa-automation"
+          mkdir -p "$QA_DIR/playwright-report" \
+                   "$QA_DIR/test-results"
+
+          docker run --rm --init --ipc=host --network host \
+            -e CI -e BASE_URL \
+            -e DB_HOST -e DB_PORT -e DB_USER -e DB_PASSWORD -e DB_NAME \
+            -e TEST_EMAIL -e TEST_PASSWORD -e TEST_WRONG_PASSWORD \
+            -v "$QA_DIR/playwright-report:/app/playwright-report" \
+            -v "$QA_DIR/test-results:/app/test-results" \
+            qa-automation-tests
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: qa-automation/playwright-report/
+          retention-days: 14
+
+      - name: Collect application diagnostics
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p ci-diagnostics
+          docker compose ps -a > ci-diagnostics/compose-status.txt 2>&1
+          docker compose logs --no-color --timestamps \
+            > ci-diagnostics/compose.log 2>&1
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-diagnostics
+          path: ci-diagnostics/
+          retention-days: 14
+
+      - name: Stop application
+        if: always()
+        timeout-minutes: 3
+        run: docker compose down -v

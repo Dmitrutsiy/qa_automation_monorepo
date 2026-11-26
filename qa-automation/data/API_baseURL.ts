@@ -1,1 +1,1 @@
-export const API_baseURL = 'http://localhost:4040/api/'
+export const API_baseURL = process.env.API_BASE_URL ?? 'http://localhost:4040/api/';
