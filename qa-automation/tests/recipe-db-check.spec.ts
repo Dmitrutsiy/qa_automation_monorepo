@@ -40,6 +40,6 @@ test("рецепт создан через интерфейс и сохраня�
     "select title, category from recipes where title = ?",
     [recipeTitle],
   );
-  expect(rows.length).toBe(2);
+  expect(rows.length).toBe(1);
   expect(rows[0].category).toBe(RecipeCategory.Dessert);
 });

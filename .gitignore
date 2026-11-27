@@ -14,3 +14,4 @@ apps/backend/src/upload/*
 CLAUDE.md
 install-docker.sh
 **/playwright-report/
+/test-results/
