@@ -76,11 +76,11 @@ export default defineConfig({
         locale: 'pl-PL'
       }
     },
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    //   dependencies: ['setup']
-    // },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup']
+    },
 
     // {
     //   name: 'webkit',
