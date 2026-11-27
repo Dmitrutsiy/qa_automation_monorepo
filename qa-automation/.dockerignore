@@ -1,0 +1,10 @@
+node_modules
+playwright-report
+test-results
+blob-report
+playwright/.auth
+playwright/.local-browsers
+.git
+.env
+.env.*
+!.env.example
